@@ -6,5 +6,5 @@
 package edu.swin.JSim.core;
 
 public enum NetworkNodeType {
-	MOBILE_DEVICE, ROUTER, DESKTOP
+	MOBILE_DEVICE, SERVER
 }

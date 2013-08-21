@@ -21,8 +21,8 @@ public abstract class Node {
 		this.name = name;
 	}
 	
-	public void randomize(String name) {
-		this.setName(name);
+	public void randomize() {
+		//EMPTY
 	}
 
 	public String getInfo() {

@@ -12,19 +12,26 @@ import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import edu.swin.JSim.core.MobileNode;
+import edu.swin.JSim.core.NetworkNode;
 import edu.swin.JSim.core.Node;
+import edu.swin.JSim.core.NodeLink;
+import edu.swin.JSim.core.ServerNode;
+import edu.swin.JSim.core.SimulationManager;
 import edu.swin.JSwin.util.MessageConsole;
 
 public class SimulationFrame extends JFrame {
 	private Container contentPanel = null;
+	private SimulationManager sm;
 	
-	public SimulationFrame() {
+	public SimulationFrame(SimulationManager sm) {
 		super();
+		
+		// SimulationManager contains all the nodes to draw
+		this.sm = sm;
 		
 		this.setTitle("Simulation");
 		this.setSize( 500,500 );
@@ -32,45 +39,71 @@ public class SimulationFrame extends JFrame {
 		
 		contentPanel = this.getContentPane();
 		this.initUI();
+		
 	}
 	
 	private void initUI() {
 		// Main Content
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+		contentPanel.setSize(new Dimension(this.getWidth(), this.getHeight()));
 		int contentPanelX = contentPanel.getWidth();
 		int contentPanelY = contentPanel.getHeight();
 		
 		// Drawable area
-		SimulationCanvas canvas = new SimulationCanvas();
-		canvas.setPreferredSize(new Dimension());
+		SimulationCanvas canvas = new SimulationCanvas(this.sm);
+		canvas.setPreferredSize(new Dimension(contentPanelX, (int) Math.round(0.7 * contentPanelY )));
 		contentPanel.add(canvas);
 		
 		// Console area
 		JTextArea consoleTextArea = new JTextArea();
-		consoleTextArea.setPreferredSize(new Dimension(500, 100));
-		contentPanel.add( new JScrollPane( consoleTextArea ) );
+		JScrollPane consoleScrollable = new JScrollPane(consoleTextArea);
+		consoleScrollable.setPreferredSize(new Dimension(contentPanelX, (int) Math.round(0.3 * contentPanelY )));
+		contentPanel.add( consoleScrollable );
 		MessageConsole mc = new MessageConsole(consoleTextArea);
-		mc.redirectOut();
+		mc.redirectOut(null, System.out);
 		mc.redirectErr(Color.RED, null);
-		mc.setMessageLines(100);		
+		mc.setMessageLines(100);
+		
+		// Pack the main content panel to resize components
+		this.pack();
 	}
 	
 	public static void main(String [] args)
 	{
-		SimulationFrame sim = new SimulationFrame();
-		sim.setVisible(true);
+		SimulationManager sm = new SimulationManager();
 		
-		Node [] nodes = new Node[5];
+		NetworkNode server = new ServerNode("S-1");
+		server.setUpStream(2000); server.setDownStream(2000); // Set the default throughput
+		// CONSTANT: Melbourne City
+		// TODO: Dynamic
+		server.setCoord(-37.8136, 144.9631 );
 		
-		for(int i = 0; i < nodes.length; i++)
+		for(int i = 0; i < 5; i++)
 		{
-			MobileNode mn = new MobileNode();
-			mn.randomize("MN-" + i);
-			nodes[i] = mn;
+			MobileNode mn = new MobileNode("MN-" + i);
+			mn.randomize();
+			
+			sm.getNodeLinks().add(new NodeLink(mn, server));
+			sm.getNodes().add(mn);
 		}
 		
-		for(Node n: nodes) {
+		sm.getNodes().add((NetworkNode) server);
+		
+		// Set the dimension/boundaries
+		sm.updateDimension();
+		
+		// Make the frame and draw simulation
+		SimulationFrame sim = new SimulationFrame(sm);
+		sim.setVisible(true);
+				
+		System.out.println("--- Links ---");
+		for(NodeLink n: sm.getNodeLinks()) {
 			System.out.println(n.getInfo());
 		}	
+		
+		System.out.println("--- Nodes ---");
+		for(Node n : sm.getNodes()) {
+			System.out.println(n.getInfo());
+		}
 	}
 }

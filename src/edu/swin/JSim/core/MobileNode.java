@@ -10,20 +10,22 @@ import edu.swin.JSim.core.NetworkNode;
 
 public class MobileNode extends NetworkNode {
 	
+
 	/**
 	 * Construct the MobileNode and set the correct type
 	 */
-	public MobileNode() {
-		this.setNodeType(NetworkNodeType.MOBILE_DEVICE);	
+	public MobileNode(String name) {
+		this.setNodeType(NetworkNodeType.MOBILE_DEVICE);
+		
+		this.setName(name);
 	}
 
 	/***
 	 * Propagate to its superclass and generate random properties
 	 * 
-	 * Only name is necessary
 	 */
-	public void randomize(String name) {
-		super.randomize(name);
+	public void randomize() {
+		super.randomize();
 	}
 	
 	/***
@@ -31,7 +33,6 @@ public class MobileNode extends NetworkNode {
 	 */
 	public String getInfo() {
 		String info = super.getInfo();
-		info += this.getNodeType().toString() + "\n";
 		
 		return info;
 	}
