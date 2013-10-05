@@ -21,11 +21,14 @@ import edu.swin.JSim.core.Node;
 import edu.swin.JSim.core.NodeLink;
 import edu.swin.JSim.core.ServerNode;
 import edu.swin.JSim.core.SimulationManager;
+import edu.swin.JSim.ui.visual.BalloonVisual;
 import edu.swin.JSwin.util.MessageConsole;
 
 public class SimulationFrame extends JFrame {
 	private Container contentPanel = null;
 	private SimulationManager sm;
+	
+	private boolean useMessageConsole = true;
 	
 	public SimulationFrame(SimulationManager sm) {
 		super();
@@ -50,19 +53,25 @@ public class SimulationFrame extends JFrame {
 		int contentPanelY = contentPanel.getHeight();
 		
 		// Drawable area
+		/*
 		SimulationCanvas canvas = new SimulationCanvas(this.sm);
-		canvas.setPreferredSize(new Dimension(contentPanelX, (int) Math.round(0.7 * contentPanelY )));
-		contentPanel.add(canvas);
+		canvas.setPreferredSize(new Dimension(contentPanelX, (int) Math.round(0.7 * contentPanelY )));*/
+		BalloonVisual bv = new BalloonVisual(sm);
+		contentPanel.add(bv);
 		
-		// Console area
-		JTextArea consoleTextArea = new JTextArea();
-		JScrollPane consoleScrollable = new JScrollPane(consoleTextArea);
-		consoleScrollable.setPreferredSize(new Dimension(contentPanelX, (int) Math.round(0.3 * contentPanelY )));
-		contentPanel.add( consoleScrollable );
-		MessageConsole mc = new MessageConsole(consoleTextArea);
-		mc.redirectOut(null, System.out);
-		mc.redirectErr(Color.RED, null);
-		mc.setMessageLines(100);
+		
+		// Are we using emssage console?
+		if (useMessageConsole) {
+			// Console area
+			JTextArea consoleTextArea = new JTextArea();
+			JScrollPane consoleScrollable = new JScrollPane(consoleTextArea);
+			consoleScrollable.setPreferredSize(new Dimension(contentPanelX, (int) Math.round(0.3 * contentPanelY )));
+			contentPanel.add( consoleScrollable );
+			MessageConsole mc = new MessageConsole(consoleTextArea);
+			mc.redirectOut(null, System.out);
+			mc.redirectErr(Color.RED, null);
+			mc.setMessageLines(100);			
+		}
 		
 		// Pack the main content panel to resize components
 		this.pack();
